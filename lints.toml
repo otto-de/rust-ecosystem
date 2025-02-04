@@ -1,0 +1,79 @@
+# add this to your top level Cargo.toml file in your workspace and set
+# [lints]
+# workspace = true
+# in the crate Cargo.toml files you want to apply the lints to.
+# If you don't use a workspace, you can just add this to your crate's Cargo.toml file and omit the `workspace` attribute.
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+# Groups
+future-incompatible = "deny"
+deprecated-safe = "deny"
+keyword-idents = "deny"
+let-underscore = "deny"
+nonstandard-style = "deny"
+refining-impl-trait = "deny"
+rust-2018-idioms = "deny"
+
+# Single
+unused-must-use = "deny"
+unused_imports = "deny"
+unfulfilled_lint_expectations = "deny"
+
+async_fn_in_trait = "allow"
+
+
+[workspace.lints.clippy]
+all = { level = "deny", priority = -1 }
+implicit_clone = "deny"
+iter_filter_is_ok = "deny"
+iter_filter_is_some = "deny"
+map_unwrap_or = "deny"
+match_same_arms = "deny"
+match_wild_err_arm = "deny"
+match_wildcard_for_single_variants = "deny"
+semicolon_if_nothing_returned = "deny"
+unused_async = "deny"
+ref_option = "deny"
+rc_mutex = "deny"
+checked_conversions = "deny"
+enum_glob_use = "deny"
+explicit_into_iter_loop = "deny"
+filter_map_next = "deny"
+flat_map_option = "deny"
+fn_params_excessive_bools = "deny"
+large_stack_arrays = "deny"
+large_types_passed_by_value = "deny"
+linkedlist = "deny"
+unwrap_used = "deny"
+needless_pass_by_value = "deny"
+clone_on_ref_ptr = "deny"
+expect_used = "deny"
+print_stdout = "deny"
+str_to_string = "deny"
+fallible_impl_from = "deny"
+manual_ok_or = "deny"
+match_on_vec_items = "deny"
+mut_mut = "deny"
+mutex_integer = "deny"
+needless_continue = "deny"
+needless_collect = "deny"
+needless_for_each = "deny"
+option_as_ref_cloned = "deny"
+option_option = "deny"
+rest_pat_in_fully_bound_structs = "deny"
+same_functions_in_if_condition = "deny"
+single_match_else = "deny"
+string_lit_as_bytes = "deny"
+trait_duplication_in_bounds = "deny"
+unnested_or_patterns = "deny"
+verbose_file_reads = "deny"
+zero_sized_map_values = "deny"
+collection_is_never_read = "deny"
+rc_buffer = "deny"
+suspicious_operation_groupings = "deny"
+allow_attributes = "deny"
+allow_attributes_without_reason = "deny"
+
+large_futures = "warn"
