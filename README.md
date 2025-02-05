@@ -2,7 +2,7 @@
 
 ## Status
 
-![OSS Lifecycle](https://img.shields.io/osslifecycle?file_url=https%3A%2F%2Fraw.githubusercontent.com%2Fotto-de%2F_projectname_%2Fmain%2FOSSMETADATA)
+![OSS Lifecycle](https://img.shields.io/osslifecycle?file_url=https%3A%2F%2Fraw.githubusercontent.com%2Fotto-de%2Frust-ecosystem%2Fmain%2FOSSMETADATA)
 
 ## About
 
