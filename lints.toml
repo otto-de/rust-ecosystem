@@ -18,7 +18,6 @@ rust-2018-idioms = "deny"
 
 # Single
 unused-must-use = "deny"
-unused_imports = "deny"
 unfulfilled_lint_expectations = "deny"
 
 async_fn_in_trait = "allow"
