@@ -83,5 +83,7 @@ redundant_else = "deny"
 trivially_copy_pass_by_ref = "deny"
 uninlined_format_args = "deny"
 unnecessary_box_returns = "deny"
+duration_suboptimal_units = "deny"
+unnecessary_trailing_comma = "deny"
 
 large_futures = "warn"
