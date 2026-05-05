@@ -35,7 +35,7 @@ This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENS
 
 ## Acknowledgments
 
-* Thanks to [@EmbarkStudios](https://github.com/EmbarkStudios) as this repository is inspired their [rust-ecosystem](https://github.com/EmbarkStudios/rust-ecosystem) repository.
+* Thanks to [@EmbarkStudios](https://github.com/EmbarkStudios) as this repository is inspired by their [rust-ecosystem](https://github.com/EmbarkStudios/rust-ecosystem) repository.
 
 
 
