@@ -17,7 +17,7 @@ Rust is currently in use at OTTO for a variety of applications and has been succ
 | Name                  | Description                                                                              |
 |-----------------------|------------------------------------------------------------------------------------------|
 | [Lints](./lints.toml) | A curated list of lints for `clippy` and `rustc` used in high-level web apps and lambdas |
-|                       |                                                                                          |
+| [Clippy config](./clippy.toml) | Companion `clippy.toml` for the lints: test exemptions, blocking calls in async code, insecure web and TLS settings |
 
 
 ## Contributing
