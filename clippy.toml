@@ -1,0 +1,61 @@
+# tombi: format.rules.table-keys-order = "ascending"
+
+# Companion to lints.toml. Put it next to the top level Cargo.toml
+
+allow-dbg-in-tests = true
+allow-expect-in-tests = true
+allow-indexing-slicing-in-tests = true
+allow-panic-in-tests = true
+allow-print-in-tests = true
+allow-unwrap-in-tests = true
+allow-useless-vec-in-tests = true
+
+# Lint `pub` items too, even when the suggested fix would change a public signature.
+# Without this, a lot of lints would skip `pub` item, which in a lib.rs + main.rs service is most of the code.
+avoid-breaking-exported-api = false
+
+# Sets up await_holding_invalid_type (denied via clippy::all, inert without a list).
+await-holding-invalid-types = [
+  { path = "tracing::span::Entered", reason = "span guards are thread-local; use `.instrument(span)` or `#[tracing::instrument]`" },
+  { path = "tracing::span::EnteredSpan", reason = "span guards are thread-local; use `.instrument(span)` or `#[tracing::instrument]`" },
+  { path = "dashmap::mapref::one::Ref", reason = "holds a DashMap shard lock; across .await this can deadlock" },
+  { path = "dashmap::mapref::one::RefMut", reason = "holds a DashMap shard lock; across .await this can deadlock" },
+  { path = "dashmap::mapref::entry::Entry", reason = "holds a DashMap shard lock; across .await this can deadlock" },
+  { path = "arc_swap::Guard", reason = "pins one of the thread's few fast slots, slowing other loads on that worker; use `load_full()` to hold an `Arc` across .await" },
+  { path = "tokio::runtime::EnterGuard", reason = "runtime context guard is thread-local" },
+]
+
+# Feeds disallowed_methods (denied via clippy::all). Every entry acts as deny, so the list
+# only holds calls with near-zero legitimate use in a tokio service. A real sync bridge
+# (e.g. inside spawn_blocking) needs #[expect(clippy::disallowed_methods, reason = "...")].
+disallowed-methods = [
+  # blocking or deadlocking inside the runtime
+  { path = "std::thread::sleep", reason = "blocks a tokio worker; use `tokio::time::sleep`" },
+  { path = "futures::executor::block_on", reason = "parks the tokio worker and can deadlock; `.await` it", allow-invalid = true },
+  { path = "futures_executor::block_on", reason = "parks the tokio worker and can deadlock; `.await` it", allow-invalid = true },
+  { path = "tokio::task::block_in_place", reason = "panics on current_thread runtimes (incl. #[tokio::test]); use `spawn_blocking`", allow-invalid = true },
+  { path = "std::net::TcpStream::connect", reason = "blocking socket; use `tokio::net::TcpStream`" },
+  { path = "std::net::ToSocketAddrs::to_socket_addrs", reason = "does a blocking DNS lookup for hostnames; use `tokio::net::lookup_host`" },
+  { path = "std::sync::mpsc::Receiver::recv", reason = "blocks the worker; use `tokio::sync::mpsc`" },
+  # insecure web and TLS settings
+  { path = "axum::extract::DefaultBodyLimit::disable", reason = "removes the request body limit (memory DoS); use `DefaultBodyLimit::max(n)`", allow-invalid = true },
+  { path = "tower_http::cors::CorsLayer::very_permissive", reason = "mirrors any Origin with credentials; list origins explicitly", allow-invalid = true },
+  { path = "tower_http::cors::CorsLayer::permissive", reason = "allows any origin; list origins explicitly", allow-invalid = true },
+  { path = "reqwest::ClientBuilder::danger_accept_invalid_certs", reason = "disables TLS certificate validation", allow-invalid = true },
+  { path = "reqwest::ClientBuilder::danger_accept_invalid_hostnames", reason = "disables TLS hostname validation", allow-invalid = true },
+  { path = "reqwest::ClientBuilder::tls_danger_accept_invalid_certs", reason = "disables TLS certificate validation", allow-invalid = true },
+  { path = "reqwest::ClientBuilder::tls_danger_accept_invalid_hostnames", reason = "disables TLS hostname validation", allow-invalid = true },
+  { path = "rustls::ClientConfig::dangerous", reason = "a custom verifier can bypass TLS validation", allow-invalid = true },
+  { path = "rustls::ConfigBuilder::dangerous", reason = "a custom verifier can bypass TLS validation", allow-invalid = true },
+  { path = "serde_json::Deserializer::disable_recursion_limit", reason = "deeply nested untrusted JSON can overflow the stack", allow-invalid = true },
+  # Project-specific: if tasks should go through an instrumented wrapper that keeps the caller's
+  # tracing span or integrates profiling capabilities like dial9, ban the raw spawns. `tokio::spawn` alone also covers `tokio::task::spawn`
+  # (same function). The wrapper itself then needs an #[expect].
+  # { path = "tokio::spawn", reason = "use `<your wrapper>` so the task keeps the caller's tracing span" },
+  # { path = "tokio::task::JoinSet::spawn", reason = "use `<your instrumented JoinSet>`" },
+  # { path = "tokio::task::spawn_blocking", reason = "use `<your wrapper>` so the task keeps the caller's tracing span" },
+]
+
+# Raise these only if the matching clippy::all lints fire on code you want to keep:
+# too-many-arguments-threshold = 10   # handlers with 8+ extractors; prefer grouping extractors
+# type-complexity-threshold = 350     # explicit tower Service/Layer stacks; prefer a type alias

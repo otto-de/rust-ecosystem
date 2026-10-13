@@ -1,89 +1,157 @@
-# add this to your top level Cargo.toml file in your workspace and set
+# Workspace: add this to the top level Cargo.toml of your workspace and set
 # [lints]
 # workspace = true
-# in the crate Cargo.toml files you want to apply the lints to.
-# If you don't use a workspace, you can just add this to your crate's Cargo.toml file and omit the `workspace` attribute.
+# in every member Cargo.toml you want the lints applied to. Members can't override single
+# lints while inheriting, so silence individual sites in code with #[expect(clippy::<lint>, reason = "...")].
+# Single crate: rename the tables to [lints.rust] / [lints.clippy].
+# Copy the companion clippy.toml next to the top level Cargo.toml. It carries the settings a
+# [lints] table can't (test exemptions, disallowed methods, await-holding types).
+# Checked with stable Rust 1.99 and nightly 1.101. Older toolchains warn about lints they don't know.
 
+# tombi: format.rules.table-keys-order = "ascending"
 [workspace.lints.rust]
 unsafe_code = "forbid"
 
-# Groups
-future-incompatible = "deny"
-deprecated-safe = "deny"
-keyword-idents = "deny"
-let-underscore = "deny"
-nonstandard-style = "deny"
-refining-impl-trait = "deny"
-rust-2018-idioms = "deny"
+# Groups (priority -1 lets single lints override them without tripping clippy::lint_groups_priority)
+
+deprecated_safe = { level = "deny", priority = -1 }
+future_incompatible = { level = "deny", priority = -1 }
+keyword_idents = { level = "deny", priority = -1 }
+let_underscore = { level = "deny", priority = -1 }
+nonstandard_style = { level = "deny", priority = -1 }
+refining_impl_trait = { level = "deny", priority = -1 }
+rust_2018_idioms = { level = "deny", priority = -1 }
 
 # Single
-unused-must-use = "deny"
+
+# `-1i32.abs()` is -1
+ambiguous_negative_literals = "deny"
+# keep typo detection for cfgs while allowing --cfg tokio_unstable (tokio-console, runtime metrics)
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(tokio_unstable)"] }
 unfulfilled_lint_expectations = "deny"
+unused_must_use = "deny"
+unused_qualifications = "warn"
 
 async_fn_in_trait = "allow"
 
+# Not here: dead_code_pub_in_binary. In a shared table it also fires on every lib.rs, because
+# `--all-targets` builds the lib as a test binary. Put `#![warn(dead_code_pub_in_binary)]` at
+# the top of each main.rs instead, until https://github.com/rust-lang/rust/issues/159078 is fixed.
 
+# tombi: format.rules.table-keys-order = "ascending"
 [workspace.lints.clippy]
 all = { level = "deny", priority = -1 }
-implicit_clone = "deny"
-iter_filter_is_ok = "deny"
-iter_filter_is_some = "deny"
-match_same_arms = "deny"
-match_wild_err_arm = "deny"
-match_wildcard_for_single_variants = "deny"
-semicolon_if_nothing_returned = "deny"
-unused_async = "deny"
-ref_option = "deny"
-rc_mutex = "deny"
+allow_attributes = "deny"
+allow_attributes_without_reason = "deny"
 checked_conversions = "deny"
+clone_on_ref_ptr = "deny"
+collection_is_never_read = "deny"
+duration_suboptimal_units = "deny"
+empty_drop = "deny"
 enum_glob_use = "deny"
+expect_used = "deny"
 explicit_into_iter_loop = "deny"
+fallible_impl_from = "deny"
 filter_map_next = "deny"
 flat_map_option = "deny"
 fn_params_excessive_bools = "deny"
+if_then_some_else_none = "deny"
+implicit_clone = "deny"
+indexing_slicing = "deny"
+iter_filter_is_ok = "deny"
+iter_filter_is_some = "deny"
 large_stack_arrays = "deny"
 large_types_passed_by_value = "deny"
 linkedlist = "deny"
-unwrap_used = "deny"
-needless_pass_by_value = "deny"
-clone_on_ref_ptr = "deny"
-expect_used = "deny"
-print_stdout = "deny"
-str_to_string = "deny"
-fallible_impl_from = "deny"
-manual_ok_or = "deny"
-indexing_slicing = "deny"
+match_same_arms = "deny"
+match_wild_err_arm = "deny"
+match_wildcard_for_single_variants = "deny"
 mut_mut = "deny"
 mutex_integer = "deny"
-needless_continue = "deny"
 needless_collect = "deny"
+needless_continue = "deny"
 needless_for_each = "deny"
+needless_pass_by_value = "deny"
 option_as_ref_cloned = "deny"
 option_option = "deny"
+print_stdout = "deny"
+rc_buffer = "deny"
+rc_mutex = "deny"
+redundant_clone = "deny"
+redundant_else = "deny"
+ref_option = "deny"
 rest_pat_in_fully_bound_structs = "deny"
 same_functions_in_if_condition = "deny"
+semicolon_if_nothing_returned = "deny"
 single_match_else = "deny"
+str_to_string = "deny"
 string_lit_as_bytes = "deny"
+suspicious_operation_groupings = "deny"
 todo = "deny"
 trait_duplication_in_bounds = "deny"
-unnested_or_patterns = "deny"
-verbose_file_reads = "deny"
-zero_sized_map_values = "deny"
-collection_is_never_read = "deny"
-rc_buffer = "deny"
-suspicious_operation_groupings = "deny"
-allow_attributes = "deny"
-allow_attributes_without_reason = "deny"
-redundant_clone = "deny"
-unnecessary_wraps = "deny"
-unnecessary_self_imports = "deny"
-empty_drop = "deny"
-if_then_some_else_none = "deny"
-redundant_else = "deny"
 trivially_copy_pass_by_ref = "deny"
 uninlined_format_args = "deny"
 unnecessary_box_returns = "deny"
-duration_suboptimal_units = "deny"
+unnecessary_self_imports = "deny"
 unnecessary_trailing_comma = "deny"
+unnecessary_wraps = "deny"
+unnested_or_patterns = "deny"
+unused_async = "deny"
+unwrap_used = "deny"
+verbose_file_reads = "deny"
+zero_sized_map_values = "deny"
+
+# Panics in request paths (clippy.toml exempts tests)
+
+panic = "deny"
+read_zero_byte_vec = "deny"
+unchecked_time_subtraction = "deny"
+unimplemented = "deny"
+
+# Process and resource lifetime
+
+exit = "deny"
+mem_forget = "deny"
+
+# Output belongs in tracing
+
+dbg_macro = "deny"
+missing_fields_in_debug = "deny"
+print_stderr = "deny"
+
+# Tests
+
+ignore_without_reason = "deny"
+should_panic_without_expect = "deny"
+
+# Casts
+
+as_underscore = "deny"
+cast_lossless = "deny"
+
+# Idioms (all autofixable)
+
+cloned_instead_of_copied = "deny"
+debug_assert_with_mut_call = "deny"
+explicit_iter_loop = "deny"
+manual_instant_elapsed = "deny"
+manual_let_else = "deny"
+non_std_lazy_statics = "deny"
+or_fun_call = "deny"
 
 large_futures = "warn"
+
+# warn: real bugs, but they need judgement at some sites
+
+assertions_on_result_states = "warn"
+case_sensitive_file_extension_comparisons = "warn"
+float_cmp = "warn"
+literal_string_with_formatting_args = "warn"
+# string_slice: indexing_slicing doesn't cover `&s[..n]`, which panics inside a multi-byte char
+string_slice = "warn"
+unnecessary_join = "warn"
+unreachable = "warn"
+
+# warn: async diagnostics (nursery)
+needless_pass_by_ref_mut = "warn"
+significant_drop_in_scrutinee = "warn"
