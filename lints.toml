@@ -2,11 +2,8 @@
 # [lints]
 # workspace = true
 # in every member Cargo.toml you want the lints applied to. Members can't override single
-# lints while inheriting (cargo rejects it), so silence individual sites in code with
-# #[expect(clippy::<lint>, reason = "...")].
-# Single crate: either keep these tables and also add `[lints]\nworkspace = true` to the same
-# Cargo.toml, or rename the tables to [lints.rust] / [lints.clippy]. If you paste the tables
-# without either, cargo applies no lints.
+# lints while inheriting, so silence individual sites in code with #[expect(clippy::<lint>, reason = "...")].
+# Single crate: rename the tables to [lints.rust] / [lints.clippy].
 # Copy the companion clippy.toml next to the top level Cargo.toml. It carries the settings a
 # [lints] table can't (test exemptions, disallowed methods, await-holding types).
 # Checked with stable Rust 1.99 and nightly 1.101. Older toolchains warn about lints they don't know.
@@ -31,8 +28,7 @@ rust_2018_idioms = { level = "deny", priority = -1 }
 ambiguous_negative_literals = "deny"
 # keep typo detection for cfgs while allowing --cfg tokio_unstable (tokio-console, runtime metrics)
 unexpected_cfgs = { level = "warn", check-cfg = ["cfg(tokio_unstable)"] }
-# warn, not deny: a stale #[expect] (e.g. dead_code that only holds outside cfg(test)) would break cargo build/test
-unfulfilled_lint_expectations = "warn"
+unfulfilled_lint_expectations = "deny"
 unused_must_use = "deny"
 unused_qualifications = "warn"
 
@@ -149,11 +145,7 @@ large_futures = "warn"
 
 assertions_on_result_states = "warn"
 case_sensitive_file_extension_comparisons = "warn"
-cast_possible_truncation = "warn"
-cast_possible_wrap = "warn"
-cast_sign_loss = "warn"
 float_cmp = "warn"
-ignored_unit_patterns = "warn"
 literal_string_with_formatting_args = "warn"
 # string_slice: indexing_slicing doesn't cover `&s[..n]`, which panics inside a multi-byte char
 string_slice = "warn"
@@ -161,8 +153,5 @@ unnecessary_join = "warn"
 unreachable = "warn"
 
 # warn: async diagnostics (nursery)
-
-# fires on `&impl Trait` params of async fns unless the trait has `Send + Sync` supertraits
-future_not_send = "warn"
 needless_pass_by_ref_mut = "warn"
 significant_drop_in_scrutinee = "warn"
